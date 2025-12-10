@@ -1,0 +1,544 @@
+/* ============= 기본 세팅 ============= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* 파스텔 블루/민트 배경 */
+  background: radial-gradient(circle at top, #e0f2fe 0, #eef2ff 45%, #f1f5f9 100%);
+  color: #0f172a;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+/* 기본 텍스트 */
+h1 {
+  font-size: 26px;
+  letter-spacing: 0.04em;
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+/* ============= 상단 네비게이션 바 ============= */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.7);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.6);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e5f0ff;
+  position: relative;
+  padding-left: 26px;
+}
+
+/* 로고 왼쪽에 아이콘 */
+.nav-logo::before {
+  content: "💠";
+  position: absolute;
+  left: 0;
+  top: -2px;
+}
+
+.nav-right {
+  display: flex;
+  gap: 8px;
+}
+
+/* 네비 버튼 – 담백파랑 */
+.nav-btn {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: rgba(15, 23, 42, 0.85);
+  color: #e5e7eb;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.nav-btn.nav-primary {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  border-color: transparent;
+  color: #f9fafb;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.5);
+}
+
+.nav-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.35);
+}
+
+/* ============= 공통 화면 카드 ============= */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  max-width: 960px;
+  margin: 32px auto 40px;
+  padding: 22px 26px;
+  border-radius: 20px;
+  background: rgba(248, 250, 252, 0.96);
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.35),
+    0 0 0 1px rgba(148, 163, 184, 0.4);
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* 부제 */
+.subtitle {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+/* ============= 버튼 ============= */
+.btn {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #f9fafb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+}
+
+.btn.secondary {
+  background: #e5e7eb;
+  color: #111827;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.45);
+}
+
+.btn.small {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.menu-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* ============= 메인 메뉴 레이아웃 ============= */
+.menu-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+@media (max-width: 960px) {
+  .menu-layout {
+    flex-direction: column;
+  }
+}
+
+/* 왼쪽 비주얼 영역 */
+.menu-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 오행 심벌 – 블루/민트 */
+.menu-logo-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  border: 3px dashed rgba(148, 163, 184, 0.9);
+  background: conic-gradient(
+    from 0deg,
+    #facc15,  #facc15 72deg,
+    #34d399,  #34d399 144deg,
+    #22c55e,  #22c55e 216deg,
+    #38bdf8,  #38bdf8 288deg,
+    #6366f1,  #6366f1 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 24px rgba(59, 130, 246, 0.6),
+    0 0 16px rgba(45, 212, 191, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-logo-ring::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border-radius: inherit;
+  background: radial-gradient(circle at top, #f9fafb 0, #e5f3ff 60%, #e0f2fe 100%);
+}
+
+/* 五行 텍스트 */
+.logo-text {
+  position: relative;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #0f172a;
+}
+
+/* 메인 이미지 */
+.menu-visual-image {
+  max-width: 260px;
+  border-radius: 16px;
+  border: 2px solid rgba(148, 163, 184, 0.7);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.4);
+  background: #fff;
+}
+
+/* 이미지 아래 설명 */
+.menu-visual-caption {
+  font-size: 13px;
+  opacity: 0.9;
+  text-align: center;
+  line-height: 1.5;
+  color: #475569;
+}
+
+/* 메인 우측 카드 */
+.menu-card {
+  background: #f9fafb;
+  padding: 22px 26px;
+  border-radius: 18px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  min-width: 320px;
+}
+
+/* 메인 화면 키 조작 힌트 */
+.menu-hints {
+  margin-top: 16px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.9;
+  color: #6b7280;
+}
+
+/* 오행 칩 – 색상은 속성 느낌만 살짝 */
+.element-chips {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #0f172a;
+  background: #e5e7eb;
+  box-shadow: 0 0 8px rgba(15, 23, 42, 0.15);
+}
+
+.chip.fire  { background: #fee2e2; color: #b91c1c; }
+.chip.earth { background: #fef9c3; color: #854d0e; }
+.chip.metal { background: #e5e7eb; color: #374151; }
+.chip.water { background: #dbeafe; color: #1d4ed8; }
+.chip.wood  { background: #dcfce7; color: #166534; }
+
+/* ============= 게임 화면 ============= */
+.game-card {
+  background: #f9fafb;
+  padding: 18px 22px 22px;
+  border-radius: 18px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  width: 100%;
+}
+
+/* 점수/목숨/조작 안내 */
+.info {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+/* 점수/목숨 + 현재 속성 한 줄 */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+
+  /* 상단 바 전체 디자인 */
+  margin: 14px 22px 10px 1px;
+  padding: 6px 32px;
+  border-radius: 999px;
+  background: radial-gradient(circle at top left,
+    #020617 0,
+    #020617 35%,
+    #020617 60%,
+    #0b1220 100%);
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.7),
+    0 0 0 1px rgba(148, 163, 184, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left,
+    rgba(148, 163, 184, 0.35),
+    transparent 55%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.info div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#score,
+#lives {
+  font-size: 20px;
+  font-weight: 800;
+  color: #facc15;
+  text-shadow:
+    0 0 4px rgba(250, 204, 21, 0.9),
+    0 0 10px rgba(15, 23, 42, 1);
+}
+
+/* 점수 / 목숨 라벨 살짝 연하게 */
+.info div:first-child,
+.info div:nth-child(2) {
+  font-weight: 500;
+}
+
+/* 조작 설명은 조금 더 흐리게 */
+.info div:nth-child(3) {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* 현재 속성 뱃지 (우측 칩) */
+.element-indicator {
+  position: relative;
+  z-index: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+
+  min-width: 170px;
+  padding: 6px 18px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(248, 250, 252, 0.22);
+  background: linear-gradient(110deg, #111827, #020617);
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.7),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+
+  font-size: 13px;
+}
+
+/* "현재 속성" 글자 */
+.element-indicator .label {
+  color: #e5e7eb;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* 화(火) 이런 값 부분 */
+.element-indicator .value {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  color: #f9fafb;
+  text-shadow:
+    0 0 3px rgba(15, 23, 42, 0.9),
+    0 0 6px rgba(15, 23, 42, 0.9);
+}
+
+/* 현재 속성 뱃지 */
+.element-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  background: linear-gradient(90deg, #e0f2fe, #eef2ff);
+  font-size: 13px;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.25);
+}
+
+.element-indicator .label {
+  opacity: 0.95;               /* 조금 더 진하게 */
+  color: #f9fafb;              /* 거의 흰색 */
+  font-weight: 600;
+  text-shadow:                  /* 살짝 테두리 효과 */
+    0 0 3px rgba(15, 23, 42, 0.9);
+}
+
+.element-indicator .value {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+
+  /* 🔥 글자 색 밝게 + 테두리처럼 그림자 */
+  color: #f9fafb;
+  text-shadow:
+    0 0 3px rgba(15, 23, 42, 0.9),
+    0 0 6px rgba(15, 23, 42, 0.9);
+}
+
+/* 캔버스 주변 프레임 */
+.canvas-wrapper {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e0f2fe, #e5e7eb);
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.45),
+    inset 0 0 0 1px rgba(148, 163, 184, 0.6);
+}
+
+/* 캔버스 */
+#gameCanvas {
+  background: 
+    linear-gradient(
+      rgba(0, 0, 0, 0.6),  /* 여기 값으로 어두운 정도 조절 */
+      rgba(0, 0, 0, 0.45)
+    ),
+    url("../image/game_background.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 14px;
+  display: block;
+}
+
+/* ============= 설명 화면 레이아웃 ============= */
+.howto-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  max-width: 1000px;
+}
+
+@media (max-width: 900px) {
+  .howto-layout {
+    flex-direction: column;
+  }
+}
+
+/* 이미지 박스 */
+.howto-diagram {
+  background: #eff6ff;
+  border-radius: 18px;
+  padding: 14px 18px;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.25);
+}
+
+.howto-diagram img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(147, 197, 253, 0.9);
+  background: #fff;
+}
+
+.howto-diagram-caption {
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+  color: #374151;
+}
+
+.howto-rel {
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: left;
+  padding-left: 18px;
+  color: #374151;
+}
+
+/* 텍스트 설명 리스트 */
+.howto-list {
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.7;
+  padding-left: 20px;
+  max-width: 480px;
+  color: #374151;
+}
+
+/* ============= 클리어 / 게임 오버 화면 ============= */
+#clear-screen p,
+#gameover-screen p {
+  color: #374151;
+}
+
+#clear-screen h2 {
+  color: #16a34a;
+}
+
+#gameover-screen h2 {
+  color: #dc2626;
+}
