@@ -26,6 +26,10 @@ export class BrickField {
     // 🔹 블럭 체력 배수 (난이도용)
     this.lifeMultiplier = 1;
 
+    // 🔹 시간이 지날수록(줄이 추가될수록) 체력을 올리기 위한 상태
+    this.extraRowCount = 0;          // 지금까지 추가된 줄 개수
+    this.rowLifeGrowthPerStep = 0.18; // 한 줄 추가될 때마다 체력 18%씩 증가
+
     this.init();
   }
 
@@ -35,12 +39,15 @@ export class BrickField {
   }
 
   /** 필드를 랜덤 브릭으로 초기화한다. */
-  init() {
+   init() {
     const { cols, rows, width, height, padding, offsetLeft, offsetTop } =
       this.layout;
 
     this.bricks = [];
     this.aliveCount = 0;
+
+    // 🔹 새 게임 기준으로 줄 성장 단계 리셋
+    this.extraRowCount = 0;
 
     for (let c = 0; c < cols; c++) {
       const col = [];
@@ -122,16 +129,28 @@ export class BrickField {
       }
     }
 
+    // 🔹 이번에 새로 추가되는 줄의 "성장 단계" 증가
+    this.extraRowCount += 1;
+
+    // 🔹 줄이 하나씩 추가될수록 체력을 점점 키우는 계수
+    const growthFactor = 1 + this.extraRowCount * this.rowLifeGrowthPerStep;
+    // 예: rowLifeGrowthPerStep = 0.15라면
+    //   1번째 추가 줄 → 1.15배
+    //   2번째 추가 줄 → 1.30배
+    //   3번째 추가 줄 → 1.45배 ...
+
     // 2) 각 열마다 맨 위에 새 벽돌 하나씩 추가
     for (let c = 0; c < cols; c++) {
       const baseConf =
         this.brickTypes[randomInt(0, this.brickTypes.length - 1)];
 
-      // 🔹 난이도 배수 적용
+      // 🔹 난이도 배수 + 시간(줄 수)에 따른 성장 계수 적용
+      const baseLifeWithDifficulty = baseConf.life * this.lifeMultiplier;
       const scaledLife = Math.max(
         1,
-        Math.round(baseConf.life * this.lifeMultiplier)
+        Math.round(baseLifeWithDifficulty * growthFactor)
       );
+
       const conf = {
         ...baseConf,
         life: scaledLife,
