@@ -4,7 +4,6 @@ export const GAME_STATE = {
   MENU: "menu",
   PLAYING: "playing",
   PAUSED: "paused",
-  CLEAR: "clear",
   OVER: "gameover",
 };
 

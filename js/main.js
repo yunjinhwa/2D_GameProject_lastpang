@@ -5,6 +5,7 @@ import { Game } from "./core/Game.js";
 import { ScreenManager } from "./ui/ScreenManager.js";
 import { GameUI } from "./ui/GameUI.js";
 import { InputHandler } from "./input/InputHandler.js";
+import { GameRecorder } from "./core/GameRecorder.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // 캔버스 / UI DOM
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameOverTimeEl = document.getElementById("gameOverTime");
   const difficultyOverlay = document.getElementById("difficulty-overlay");
   const diffButtons = document.querySelectorAll(".diff-btn");
+  const recordListEl = document.getElementById("recordList");
 
   const mainMenu = document.getElementById("main-menu");
   const howtoScreen = document.getElementById("howto-screen");
@@ -40,6 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const navHowto = document.getElementById("navHowto");
   const navPlay = document.getElementById("navPlay");
 
+  const sortLatestBtn = document.getElementById("recordSortLatest");
+  const sortBestBtn = document.getElementById("recordSortBest");
+
   // 의존성 생성
   const elementRules = new ElementRules();
   const screenManager = new ScreenManager({
@@ -49,6 +54,54 @@ document.addEventListener("DOMContentLoaded", () => {
     clearScreen,
     gameOverScreen,
   });
+
+  // 🔹 기록 매니저 생성
+  const recorder = new GameRecorder();
+
+  // 🔹 현재 정렬 모드: "latest" | "best"
+  let recordSortMode = "latest";
+
+  // 🔹 기록 UI 렌더 함수
+  const renderRecords = () => {
+    if (!recordListEl) return;
+
+    let records;
+    if (recordSortMode === "best") {
+      records = recorder.getBestScoreRecords(10);   // 최고 점수 기준 10개
+    } else {
+      records = recorder.getLatestRecords(10);      // 최신순 10개
+    }
+
+    recordListEl.innerHTML = "";
+
+    if (!records.length) {
+      const li = document.createElement("li");
+      li.textContent = "플레이 기록이 아직 없습니다.";
+      recordListEl.appendChild(li);
+      return;
+    }
+
+    records.forEach((r, index) => {
+      const li = document.createElement("li");
+      const d = new Date(r.timestamp);
+      const dateStr = `${d.getFullYear()}-${String(
+        d.getMonth() + 1
+      ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+      const diffLabel = r.difficulty || "normal";
+      const timeText =
+        typeof r.time === "number" ? r.time.toFixed(2) + "초" : "-";
+
+      // 최고점수 모드일 때는 랭킹 번호도 같이 보여주면 직관적
+      const prefix =
+        recordSortMode === "best" ? `${index + 1}. ` : "";
+
+      li.textContent =
+        `${prefix}[${dateStr}] ${diffLabel} / ` +
+        `${r.score}점 / ${timeText}`;
+      recordListEl.appendChild(li);
+    });
+  };
 
   const ui = new GameUI({
     scoreEl,
@@ -69,6 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
     elementRules,
     ui,
     screenManager,
+    onGameEnd: (result) => {
+      recorder.saveRecord(result);
+      renderRecords();
+    },
   });
 
   // 초기 화면
@@ -142,6 +199,27 @@ document.addEventListener("DOMContentLoaded", () => {
   if (navHome)  navHome.addEventListener("click", () => game.showMenu());
   if (navHowto) navHowto.addEventListener("click", () => game.showHowTo());
   if (navPlay)  navPlay.addEventListener("click", () => game.startGame());
+
+  // 🔹 footer 기록 정렬 버튼
+  if (sortLatestBtn) {
+    sortLatestBtn.addEventListener("click", () => {
+      recordSortMode = "latest";
+      sortLatestBtn.classList.add("active");
+      if (sortBestBtn) sortBestBtn.classList.remove("active");
+      renderRecords();
+    });
+  }
+
+  if (sortBestBtn) {
+    sortBestBtn.addEventListener("click", () => {
+      recordSortMode = "best";
+      sortBestBtn.classList.add("active");
+      if (sortLatestBtn) sortLatestBtn.classList.remove("active");
+      renderRecords();
+    });
+  }
+
+  renderRecords();
 
   // 게임 루프 시작
   game.startLoop();

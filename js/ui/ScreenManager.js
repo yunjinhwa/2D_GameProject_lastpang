@@ -22,6 +22,5 @@ export class ScreenManager {
   showMenu()     { this.setScreen("menu"); }
   showGame()     { this.setScreen("game"); }
   showHowTo()    { this.setScreen("howto"); }
-  showClear()    { this.setScreen("clear"); }
   showGameOver() { this.setScreen("gameover"); }
 }

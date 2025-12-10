@@ -597,3 +597,92 @@ h2 {
   opacity: 0.85;
   line-height: 1.5;
 }
+
+/* ============= 플레이 기록 영역 ============= */
+.record-section {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.7);
+  text-align: left;
+}
+
+.record-title {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.record-list {
+  list-style: none;
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.record-list li + li {
+  margin-top: 4px;
+}
+
+/* ============= 사이트 footer ============= */
+.site-footer {
+  padding: 0 24px 24px;
+}
+
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.footer-records {
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 18px;
+  padding: 10px 14px 14px;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.6),
+    0 0 0 1px rgba(148, 163, 184, 0.6);
+}
+
+.footer-records-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.footer-records .record-title {
+  margin: 0;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+.record-sort {
+  display: inline-flex;
+  gap: 6px;
+}
+
+/* 정렬 버튼 */
+.record-sort-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.9);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.record-sort-btn.active {
+  background: #facc15;
+  color: #1f2937;
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+}
+
+/* footer 안 기록 리스트 색상 덮어쓰기 */
+.footer-records .record-list {
+  color: #e5e7eb;
+  max-height: 140px;
+}
