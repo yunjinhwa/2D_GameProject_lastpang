@@ -1,8 +1,19 @@
-// js/core/BrickField.js
+/**
+ * BrickField.js
+ * ------------------------------------------
+ * - 전체 브릭(벽돌) 필드를 관리하는 클래스.
+ * - 초기 랜덤 배치, 난이도에 따른 체력 배수, 줄 내려오기, 클리어 여부 판단을 담당.
+ * - 브릭 렌더링 시 공들의 속성에 따른 glow 표현도 포함한다.
+ */
 import { Brick } from "./Brick.js";
 import { randomInt } from "../utils/random.js";
 
 export class BrickField {
+  /**
+   * @param {Object} layout     브릭 배치 레이아웃 설정
+   * @param {Array} brickTypes  BRICK_TYPES 설정 배열
+   * @param {ElementRules} elementRules 오행 규칙
+   */
   constructor(layout, brickTypes, elementRules) {
     this.layout = layout;
     this.brickTypes = brickTypes;
@@ -23,7 +34,8 @@ export class BrickField {
     this.lifeMultiplier = multiplier;
   }
 
-    init() {
+  /** 필드를 랜덤 브릭으로 초기화한다. */
+  init() {
     const { cols, rows, width, height, padding, offsetLeft, offsetTop } =
       this.layout;
 
@@ -58,35 +70,45 @@ export class BrickField {
     this.totalCount = this.aliveCount;
   }
 
+  /**
+   * (row, col) 위치의 벽돌에 오행에 따른 데미지를 적용한다.
+   * @returns {{destroyed:boolean, scoreDelta:number}}
+   */
   applyHit(row, col, ballElementType, elementRules) {
-  const brick = this.bricks[col][row];
-  if (!brick || brick.life <= 0) {
-    return { destroyed: false, scoreDelta: 0 };
+    const brick = this.bricks[col][row];
+    if (!brick || brick.life <= 0) {
+      return { destroyed: false, scoreDelta: 0 };
+    }
+
+    const damage = elementRules.getDamage(ballElementType, brick.type);
+
+    // Brick 클래스의 hit()를 사용해서 life / status 둘 다 갱신
+    const destroyed = brick.hit(damage);
+
+    let scoreDelta = 0;
+    if (destroyed) {
+      this.aliveCount--;
+      scoreDelta = 1;      // 점수 정책은 그대로
+    }
+
+    return { destroyed, scoreDelta };
   }
 
-  const damage = elementRules.getDamage(ballElementType, brick.type);
-
-  // Brick 클래스의 hit()를 사용해서 life / status 둘 다 갱신
-  const destroyed = brick.hit(damage);
-
-  let scoreDelta = 0;
-  if (destroyed) {
-    this.aliveCount--;
-    scoreDelta = 1;      // 점수 정책은 그대로
-  }
-
-  return { destroyed, scoreDelta };
-}
-
+  /** 랜덤 초기화 */
   resetRandom() {
     this.init();
   }
 
+  /** 모든 살아있는 벽돌이 제거됐는지 여부 */
   isCleared() {
     return this.aliveCount <= 0;
   }
 
-    shiftDownAndAddRow() {
+  /**
+   * 모든 브릭을 한 줄 아래로 내리고, 맨 위에 새 줄을 추가한다.
+   * (난이도에 따라 주기적으로 호출됨)
+   */
+  shiftDownAndAddRow() {
     const { width, height, padding, offsetLeft, offsetTop, cols } = this.layout;
     const dy = height + padding;
 
@@ -124,7 +146,6 @@ export class BrickField {
     }
   }
 
-
   /**
    * 살아있는 벽돌 중, 주어진 y 라인까지 내려온 것이 있는지 검사
    * (예: 패들 위쪽 라인까지 내려왔는지 확인용)
@@ -146,10 +167,17 @@ export class BrickField {
     return false;
   }
 
+  /**
+   * 모든 브릭을 그리되, 현재 존재하는 공들의 오행에 따라
+   * glowFactor를 계산하여 밝기를 조절한다.
+   *
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {Ball[]} balls  현재 화면에 떠 있는 공 배열
+   */
   draw(ctx, balls) {
     const { width, height } = this.layout;
 
-    // 🔹 공 배열에서 type만 뽑기 (null/undefined 제거)
+    // 공 배열에서 type만 뽑기 (null/undefined 제거)
     const ballTypes = Array.isArray(balls)
       ? balls
           .map((b) => b && b.type)
@@ -165,7 +193,7 @@ export class BrickField {
         let glowFactor = 1;
 
         if (ballTypes.length > 0) {
-          // 🔥 이 벽돌에 대해 “가장 유리한 공”의 데미지 찾기
+          // 이 벽돌에 대해 “가장 유리한 공”의 데미지 찾기
           let bestDamage = -Infinity;
 
           for (const ballType of ballTypes) {
@@ -178,7 +206,7 @@ export class BrickField {
           // bestDamage 기준으로 유/불리 판단
           switch (bestDamage) {
             case 6:
-              glowFactor = 2.0;    // 어떤 공이든 이 벽돌을 상극으로 이김 → 엄청 밝게
+              glowFactor = 2.0;    // 어떤 공이든 이 벽돌을 상극으로 이김 → 아주 밝게
               break;
             case 4:
               glowFactor = 1.5;    // 벽돌이 어떤 공에게서 상생 도움 → 꽤 밝게

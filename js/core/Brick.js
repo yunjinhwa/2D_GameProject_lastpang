@@ -1,4 +1,16 @@
+/**
+ * Brick.js
+ * ------------------------------------------
+ * - 개별 벽돌(브릭)의 속성과 상태를 담당한다.
+ * - 체력(life), 색상, 타입(오행) 정보를 가진다.
+ * - BrickField에서 생성/보관하며, draw()로 렌더링된다.
+ */
 export class Brick {
+  /**
+   * @param {Object} config 브릭 타입 설정 (type, color, life 등)
+   * @param {number} x      화면상의 x 좌표
+   * @param {number} y      화면상의 y 좌표
+   */
   constructor(config, x, y) {
     this.type = config.type;
     this.color = config.color;
@@ -8,27 +20,44 @@ export class Brick {
 
     this.x = x;
     this.y = y;
-    this.status = 1; // 1: 살아있음, 0: 파괴
+
+    // 1: 살아있음, 0: 파괴됨
+    this.status = 1;
   }
 
+  /**
+   * 브릭이 데미지를 받았을 때 체력을 감소시키고,
+   * 체력이 0 이하가 되면 파괴 상태로 변경한다.
+   *
+   * @param {number} damage
+   * @returns {boolean} 파괴되었으면 true
+   */
   hit(damage) {
     if (this.status !== 1 || damage <= 0) return false;
+
     this.life -= damage;
+
     if (this.life <= 0) {
       this.life = 0;
-      this.status = 0;
+      this.status = 0; // 파괴
       return true;
     }
     return false;
   }
 
-  // 🔥 glowFactor(광량 계수) 추가
+  /**
+   * 네온 스타일 브릭 렌더링
+   * @param {CanvasRenderingContext2D} ctx
+   * @param {number} width   브릭 너비
+   * @param {number} height  브릭 높이
+   * @param {number} glowFactor 광량 계수 (공/벽돌 상성에 따라 조절)
+   */
   draw(ctx, width, height, glowFactor = 1) {
     if (this.status !== 1) return;
 
     const x = this.x;
     const y = this.y;
-    const radius = 7;       // 모서리 정도
+    const radius = 7;       // 모서리 둥글기
     const border = 3;       // 네온 테두리 두께
     const innerPadding = 3; // 안쪽 사각형 여백
 
@@ -42,9 +71,9 @@ export class Brick {
     const baseAlphaMin = 0.18; // 완전 불리한 블럭 → 거의 희미
     const baseAlphaMax = 1.0;  // 완전 유리한 블럭 → 풀 밝기
 
-    // damage 에 따라 들어온 glowFactor 로 실제 값 계산
+    // glowFactor 로 실제 값 계산
     const t =
-      (clampedFactor - minFactor) / (maxFactor - minFactor); // 0 ~ 1
+      (clampedFactor - minFactor) / (maxFactor - minFactor); // 0 ~ 1 범위
     const alpha = baseAlphaMin + t * (baseAlphaMax - baseAlphaMin);
 
     const shadowBlur = baseShadowBlur * clampedFactor;
@@ -63,8 +92,8 @@ export class Brick {
     ctx.strokeStyle = this.color;
 
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = shadowBlur;   // 🔆 유리/불리 정도에 따라 달라짐
-    ctx.globalAlpha = alpha;       // 🔆 투명도도 함께 조절
+    ctx.shadowBlur = shadowBlur;   // 유리/불리 정도에 따라 달라짐
+    ctx.globalAlpha = alpha;       // 투명도도 함께 조절
 
     ctx.stroke();
 

@@ -1,4 +1,10 @@
-// js/main.js
+/**
+ * main.js
+ * ------------------------------------------
+ * - DOMContentLoaded 시점에 전체 게임을 초기화하는 엔트리 포인트.
+ * - DOM 요소를 탐색하고, ScreenManager / GameUI / Game / InputHandler / GameRecorder를 구성한다.
+ * - 버튼/네비게이션 이벤트와 기록 정렬/초기화 UI를 연결한다.
+ */
 import { ELEMENT_NAMES_KO, PLATFORM_TYPES, BRICK_TYPES } from "./config/elements.js";
 import { ElementRules } from "./core/ElementRules.js";
 import { Game } from "./core/Game.js";
@@ -44,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sortLatestBtn = document.getElementById("recordSortLatest");
   const sortBestBtn = document.getElementById("recordSortBest");
+  const clearRecordsBtn = document.getElementById("recordClearBtn");
 
   // 의존성 생성
   const elementRules = new ElementRules();
@@ -61,15 +68,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🔹 현재 정렬 모드: "latest" | "best"
   let recordSortMode = "latest";
 
-  // 🔹 기록 UI 렌더 함수
+  /**
+   * footer 영역의 기록 리스트를 렌더링한다.
+   * 현재 recordSortMode에 따라 최신순/최고점수 순으로 표시.
+   */
   const renderRecords = () => {
     if (!recordListEl) return;
 
     let records;
     if (recordSortMode === "best") {
-      records = recorder.getBestScoreRecords(10);   // 최고 점수 기준 10개
+      // 최고 점수 기준 10개
+      records = recorder.getBestScoreRecords(10);
     } else {
-      records = recorder.getLatestRecords(10);      // 최신순 10개
+      // 최신순 10개
+      records = recorder.getLatestRecords(10);
     }
 
     recordListEl.innerHTML = "";
@@ -122,16 +134,17 @@ document.addEventListener("DOMContentLoaded", () => {
     elementRules,
     ui,
     screenManager,
+    // 게임이 끝날 때마다 기록 저장 + 렌더
     onGameEnd: (result) => {
       recorder.saveRecord(result);
       renderRecords();
     },
   });
 
-  // 초기 화면
+  // 초기 화면: 메인 메뉴
   screenManager.showMenu();
 
-  // 키보드 입력
+  // 키보드 입력 핸들러 등록
   new InputHandler({
     isGameActive: () => game.isPlayingOrPaused(),
     onMoveLeft: (down) => game.setMoveLeft(down),
@@ -142,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     onNextElement: () => game.nextPlatformElement(),
   });
 
-  // 버튼 이벤트
+  /** 게임 화면을 열고 난이도 선택 오버레이를 활성화하는 함수 */
   const openGameForDifficultySelect = () => {
     game.showGameForDifficultySelect();
     if (difficultyOverlay) {
@@ -161,11 +174,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // 메인 메뉴 버튼들
   if (btnStart)        btnStart.addEventListener("click", openGameForDifficultySelect);
   if (btnHowTo)        btnHowTo.addEventListener("click", openGameForDifficultySelect);
   if (btnHowToBack)    btnHowToBack.addEventListener("click", openGameForDifficultySelect);
   
-    if (btnBackToMenu)
+  if (btnBackToMenu)
     btnBackToMenu.addEventListener("click", () => {
       if (difficultyOverlay) difficultyOverlay.classList.remove("active");
       game.showMenu();
@@ -195,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
       game.showMenu();
     });
 
-
+  // 상단 네비게이션
   if (navHome)  navHome.addEventListener("click", () => game.showMenu());
   if (navHowto) navHowto.addEventListener("click", () => game.showHowTo());
   if (navPlay)  navPlay.addEventListener("click", () => game.startGame());
@@ -219,6 +233,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 🔹 기록 초기화 버튼
+  if (clearRecordsBtn) {
+    clearRecordsBtn.addEventListener("click", () => {
+      const ok = confirm("정말로 모든 플레이 기록을 삭제할까요?");
+      if (!ok) return;
+
+      recorder.clear();   // localStorage 비움
+      renderRecords();    // UI 갱신 → "플레이 기록이 아직 없습니다." 표시
+    });
+  }
+
+  // 페이지 처음 로드 시 기록 표시
   renderRecords();
 
   // 게임 루프 시작

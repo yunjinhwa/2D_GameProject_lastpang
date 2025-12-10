@@ -1,3 +1,11 @@
+/*
+ * style.css
+ * ------------------------------------------
+ * - 전체 페이지(메인/게임/설명/기록)의 레이아웃과 스타일을 정의한다.
+ * - 상단 네비게이션, 메인 메뉴, 게임 화면, 난이도 오버레이, footer 기록 등
+ *   모든 UI 요소의 색상/여백/폰트 스타일을 포함한다.
+ */
+
 /* ============= 기본 세팅 ============= */
 * {
   box-sizing: border-box;
@@ -380,8 +388,7 @@ h2 {
   pointer-events: none;
 }
 
-/* .info div는 이제 .info-stats 내부에서 사용됨 */
-
+/* 실제 숫자 강조 */
 #score,
 #lives {
   font-size: 20px;
@@ -391,8 +398,6 @@ h2 {
     0 0 4px rgba(250, 204, 21, 0.9),
     0 0 10px rgba(15, 23, 42, 1);
 }
-
-/* 기존 스타일은 새로운 구조에 맞게 제거 또는 수정됨 */
 
 /* 현재 속성 뱃지 (우측 칩) */
 .element-indicator {
@@ -432,7 +437,8 @@ h2 {
     0 0 8px rgba(15, 23, 42, 0.9);
 }
 
-/* 현재 속성 뱃지 */
+/* (아래에 동일 클래스에 대한 스타일이 한 번 더 있으므로,
+   중복을 정리할 수도 있지만, 기존 구조는 유지) */
 .element-indicator {
   display: flex;
   align-items: center;
@@ -446,10 +452,10 @@ h2 {
 }
 
 .element-indicator .label {
-  opacity: 0.95;               /* 조금 더 진하게 */
-  color: #f9fafb;              /* 거의 흰색 */
+  opacity: 0.95;
+  color: #f9fafb;
   font-weight: 600;
-  text-shadow:                  /* 살짝 테두리 효과 */
+  text-shadow:
     0 0 3px rgba(15, 23, 42, 0.9);
 }
 
@@ -457,8 +463,6 @@ h2 {
   font-weight: 800;
   font-size: 20px;
   letter-spacing: 0.04em;
-
-  /* 🔥 글자 색 밝게 + 테두리처럼 그림자 */
   color: #f9fafb;
   text-shadow:
     0 0 3px rgba(15, 23, 42, 0.9),
@@ -685,4 +689,22 @@ h2 {
 .footer-records .record-list {
   color: #e5e7eb;
   max-height: 140px;
+}
+
+/* 기록 초기화 버튼 */
+.record-clear-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.8);
+  background: rgba(127, 29, 29, 0.9);
+  color: #fee2e2;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.record-clear-btn:hover {
+  background: rgba(185, 28, 28, 0.95);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.8);
 }

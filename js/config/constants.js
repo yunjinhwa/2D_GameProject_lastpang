@@ -1,4 +1,9 @@
-// js/config/constants.js
+/**
+ * constants.js
+ * ------------------------------------------
+ * - 게임 전역에서 사용하는 상수 정의.
+ * - 상태 값, 공/패들/브릭 레이아웃 설정 등을 포함한다.
+ */
 
 export const GAME_STATE = {
   MENU: "menu",
