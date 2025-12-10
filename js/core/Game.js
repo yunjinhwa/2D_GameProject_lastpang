@@ -214,8 +214,28 @@ export class Game {
 
   /** 게임 설명 화면으로 이동 */
   showHowTo() {
+    // 게임 설명으로 들어오기 직전의 상태를 저장
+    this._prevStateBeforeHowTo = this.state;
+
+    // 설명 화면에서는 게임은 멈춘 상태처럼 처리
     this.state = GAME_STATE.MENU;
     this.screenManager.showHowTo();
+  }
+
+  /** 게임 설명 화면에서 뒤로가기 */
+  backFromHowTo() {
+    const prev = this._prevStateBeforeHowTo;
+    this._prevStateBeforeHowTo = null; // 한 번 쓰고 초기화
+
+    // 이전에 실제 게임 중이었다면 → 게임 화면으로 복귀
+    if (prev === GAME_STATE.PLAYING || prev === GAME_STATE.PAUSED) {
+      this.state = prev || GAME_STATE.PLAYING;
+      this.screenManager.showGame();
+    } else {
+      // 그 외(메인 메뉴/게임 오버 등) → 메인 메뉴로
+      this.state = GAME_STATE.MENU;
+      this.screenManager.showMenu();
+    }
   }
 
   /** 현재 난이도 그대로 재시작 */

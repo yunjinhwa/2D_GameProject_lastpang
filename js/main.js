@@ -52,6 +52,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const sortBestBtn = document.getElementById("recordSortBest");
   const clearRecordsBtn = document.getElementById("recordClearBtn");
 
+  // 게임 설명에서 뒤로가기 할 때를 위한 상태 기억 변수
+  let lastScreenBeforeHowTo = "menu";
+  let wasDifficultyOverlayActiveBeforeHowTo = false;
+
   // 의존성 생성
   const elementRules = new ElementRules();
   const screenManager = new ScreenManager({
@@ -175,9 +179,42 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 메인 메뉴 버튼들
-  if (btnStart)        btnStart.addEventListener("click", openGameForDifficultySelect);
-  if (btnHowTo)        btnHowTo.addEventListener("click", openGameForDifficultySelect);
-  if (btnHowToBack)    btnHowToBack.addEventListener("click", openGameForDifficultySelect);
+  // 🔹 메인에서 "게임 시작"은 난이도 선택으로
+  if (btnStart)
+    btnStart.addEventListener("click", openGameForDifficultySelect);
+
+  // 🔹 메인에서 "게임 설명"은 설명 화면으로
+  if (btnHowTo)
+    btnHowTo.addEventListener("click", () => {
+      // 메인 메뉴에서 설명으로 진입
+      lastScreenBeforeHowTo = "menu";
+      wasDifficultyOverlayActiveBeforeHowTo = false;
+
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showHowTo();
+    });
+
+  // 🔹 설명 화면의 "뒤로가기"는 이전 화면으로
+  if (btnHowToBack)
+    btnHowToBack.addEventListener("click", () => {
+      if (lastScreenBeforeHowTo === "game") {
+        // 게임 화면으로 복귀
+        screenManager.showGame();
+
+        // 복귀 시, 이전에 난이도 선택 오버레이가 켜져 있었다면 다시 켜준다
+        if (difficultyOverlay) {
+          if (wasDifficultyOverlayActiveBeforeHowTo) {
+            difficultyOverlay.classList.add("active");
+          } else {
+            difficultyOverlay.classList.remove("active");
+          }
+        }
+      } else {
+        // 그 외에는 메인 메뉴로 복귀
+        if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+        game.showMenu();
+      }
+    });
   
   if (btnBackToMenu)
     btnBackToMenu.addEventListener("click", () => {
@@ -210,9 +247,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   // 상단 네비게이션
-  if (navHome)  navHome.addEventListener("click", () => game.showMenu());
-  if (navHowto) navHowto.addEventListener("click", () => game.showHowTo());
-  if (navPlay)  navPlay.addEventListener("click", () => game.startGame());
+  if (navHome)
+    navHome.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showMenu();
+    });
+
+  if (navHowto)
+    navHowto.addEventListener("click", () => {
+      // 현재 어떤 화면인지 보고 저장
+      const isGameScreenActive = gameScreen.classList.contains("active");
+      lastScreenBeforeHowTo = isGameScreenActive ? "game" : "menu";
+
+      // 난이도 선택 오버레이가 켜진 상태였는지 저장
+      wasDifficultyOverlayActiveBeforeHowTo =
+        !!difficultyOverlay && difficultyOverlay.classList.contains("active");
+
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showHowTo();
+    });
+
+  // 🔹 네비바 "게임 시작"도 난이도 선택 화면만 띄우도록
+  if (navPlay)
+    navPlay.addEventListener("click", openGameForDifficultySelect);
 
   // 🔹 footer 기록 정렬 버튼
   if (sortLatestBtn) {
