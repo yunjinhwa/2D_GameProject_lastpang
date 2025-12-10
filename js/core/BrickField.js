@@ -12,10 +12,18 @@ export class BrickField {
     this.totalCount = layout.rows * layout.cols;
     this.aliveCount = this.totalCount;
 
+    // 🔹 블럭 체력 배수 (난이도용)
+    this.lifeMultiplier = 1;
+
     this.init();
   }
 
-  init() {
+  // 🔹 Game에서 난이도 변경 시 호출
+  setLifeMultiplier(multiplier) {
+    this.lifeMultiplier = multiplier;
+  }
+
+    init() {
     const { cols, rows, width, height, padding, offsetLeft, offsetTop } =
       this.layout;
 
@@ -25,8 +33,19 @@ export class BrickField {
     for (let c = 0; c < cols; c++) {
       const col = [];
       for (let r = 0; r < rows; r++) {
-        const conf =
+        const baseConf =
           this.brickTypes[randomInt(0, this.brickTypes.length - 1)];
+
+        // 🔹 난이도에 따른 체력 배수 적용
+        const scaledLife = Math.max(
+          1,
+          Math.round(baseConf.life * this.lifeMultiplier)
+        );
+        const conf = {
+          ...baseConf,
+          life: scaledLife,
+        };
+
         const x = c * (width + padding) + offsetLeft;
         const y = r * (height + padding) + offsetTop;
 
@@ -47,7 +66,7 @@ export class BrickField {
     return this.aliveCount <= 0;
   }
 
-  shiftDownAndAddRow() {
+    shiftDownAndAddRow() {
     const { width, height, padding, offsetLeft, offsetTop, cols } = this.layout;
     const dy = height + padding;
 
@@ -63,18 +82,28 @@ export class BrickField {
 
     // 2) 각 열마다 맨 위에 새 벽돌 하나씩 추가
     for (let c = 0; c < cols; c++) {
-      const conf =
+      const baseConf =
         this.brickTypes[randomInt(0, this.brickTypes.length - 1)];
+
+      // 🔹 난이도 배수 적용
+      const scaledLife = Math.max(
+        1,
+        Math.round(baseConf.life * this.lifeMultiplier)
+      );
+      const conf = {
+        ...baseConf,
+        life: scaledLife,
+      };
 
       const x = c * (width + padding) + offsetLeft;
       const y = offsetTop;
 
       const newBrick = new Brick(conf, x, y);
-      // 맨 위에 추가 (행 0번)
       this.bricks[c].unshift(newBrick);
       this.aliveCount++;
     }
   }
+
 
   /**
    * 살아있는 벽돌 중, 주어진 y 라인까지 내려온 것이 있는지 검사

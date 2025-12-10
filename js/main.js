@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const finalScoreEls = document.querySelectorAll(".final-score");
   const timerEl = document.getElementById("timer");
   const gameOverTimeEl = document.getElementById("gameOverTime");
+  const difficultyOverlay = document.getElementById("difficulty-overlay");
+  const diffButtons = document.querySelectorAll(".diff-btn");
 
   const mainMenu = document.getElementById("main-menu");
   const howtoScreen = document.getElementById("howto-screen");
@@ -84,14 +86,58 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 버튼 이벤트
-  if (btnStart)        btnStart.addEventListener("click", () => game.startGame());
-  if (btnHowTo)        btnHowTo.addEventListener("click", () => game.showHowTo());
-  if (btnHowToBack)    btnHowToBack.addEventListener("click", () => game.showMenu());
-  if (btnBackToMenu)   btnBackToMenu.addEventListener("click", () => game.showMenu());
-  if (btnRestartClear) btnRestartClear.addEventListener("click", () => game.startGame());
-  if (btnClearToMenu)  btnClearToMenu.addEventListener("click", () => game.showMenu());
-  if (btnRestartOver)  btnRestartOver.addEventListener("click", () => game.startGame());
-  if (btnOverToMenu)   btnOverToMenu.addEventListener("click", () => game.showMenu());
+  const openGameForDifficultySelect = () => {
+    game.showGameForDifficultySelect();
+    if (difficultyOverlay) {
+      difficultyOverlay.classList.add("active");
+    }
+  };
+
+  // 🔹 난이도 버튼(Easy/Normal/Hard/Extrim) 클릭 시
+  diffButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const level = btn.dataset.diff; // "easy" | "normal" | "hard" | "extrim"
+      game.startWithDifficulty(level);
+      if (difficultyOverlay) {
+        difficultyOverlay.classList.remove("active");
+      }
+    });
+  });
+
+  if (btnStart)        btnStart.addEventListener("click", openGameForDifficultySelect);
+  if (btnHowTo)        btnHowTo.addEventListener("click", openGameForDifficultySelect);
+  if (btnHowToBack)    btnHowToBack.addEventListener("click", openGameForDifficultySelect);
+  
+    if (btnBackToMenu)
+    btnBackToMenu.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showMenu();
+    });
+
+  if (btnRestartClear)
+    btnRestartClear.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.startGame();          // 현재 선택된 난이도 그대로 재시작
+    });
+
+  if (btnClearToMenu)
+    btnClearToMenu.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showMenu();
+    });
+
+  if (btnRestartOver)
+    btnRestartOver.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.startGame();          // 현재 난이도로 재시작
+    });
+
+  if (btnOverToMenu)
+    btnOverToMenu.addEventListener("click", () => {
+      if (difficultyOverlay) difficultyOverlay.classList.remove("active");
+      game.showMenu();
+    });
+
 
   if (navHome)  navHome.addEventListener("click", () => game.showMenu());
   if (navHowto) navHowto.addEventListener("click", () => game.showHowTo());

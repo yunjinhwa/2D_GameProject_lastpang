@@ -8,6 +8,26 @@ import { Item } from "../items/Item.js";
 import { MultiBallEffect } from "../items/effects/MultiBallEffect.js";
 import { CloneBallEffect } from "../items/effects/CloneBallEffect.js";
 
+// 🔹 난이도 프리셋 (블럭 하강 속도 + 블럭 체력 배수)
+const DIFFICULTY_PRESETS = {
+  easy: {
+    rowFallInterval: 30,     // 줄 내려오는 주기(초) → 느리게
+    brickLifeMultiplier: 0.8 // 블럭 체력 80%
+  },
+  normal: {
+    rowFallInterval: 26,     // 기존 기본값
+    brickLifeMultiplier: 1.0 // 기본 체력
+  },
+  hard: {
+    rowFallInterval: 22,      // 더 자주 내려옴
+    brickLifeMultiplier: 1.4 // 체력 1.4배
+  },
+  extrim: {
+    rowFallInterval: 18,      // 엄청 자주 내려옴
+    brickLifeMultiplier: 1.8 // 체력 1.8배 (거의 2배 느낌)
+  },
+};
+
 export class Game {
   constructor({ canvas, ctx, platformTypes, brickTypes, elementRules, ui, screenManager }) {
     this.canvas = canvas;
@@ -22,12 +42,17 @@ export class Game {
 
     this.state = GAME_STATE.MENU;
     this.score = 0;
-    this.lives = 3;
+    this.lives = 3;        // 난이도와 무관, 그대로 3
     this.elapsedTime = 0;
 
     this.lastTimestamp = 0;
 
-    this.rowFallInterval = 12; // 10초마다 한 줄씩 내려오게 (원하면 5 등으로 변경)
+    // 🔹 난이도 기본값
+    this.difficulty = "normal";
+    this.brickLifeMultiplier = 1;
+
+    // 🔹 난이도에 맞는 rowFallInterval 세팅
+    this.applyDifficultySettings();
     this.rowFallTimer = 0;
 
     const startX = canvas.width / 2;
@@ -55,6 +80,42 @@ export class Game {
     );
 
     this.brickField = new BrickField(BRICK_LAYOUT, this.brickTypes, elementRules);
+    // 🔹 생성 직후 현재 난이도의 체력 배수 적용
+    this.brickField.setLifeMultiplier(this.brickLifeMultiplier);
+  }
+
+  // 🔹 현재 난이도 설정 가져오기
+  get difficultyConfig() {
+    return DIFFICULTY_PRESETS[this.difficulty] || DIFFICULTY_PRESETS.normal;
+  }
+
+  // 🔹 난이도에 따른 값 적용 (rowFallInterval + brickLifeMultiplier)
+  applyDifficultySettings() {
+    const cfg = this.difficultyConfig;
+    this.rowFallInterval = cfg.rowFallInterval;
+    this.brickLifeMultiplier = cfg.brickLifeMultiplier;
+  }
+
+  // 🔹 난이도 변경 (문자열: "easy" | "normal" | "hard" | "extrim")
+  setDifficulty(level) {
+    this.difficulty = level;
+  }
+
+  // 🔹 난이도 선택 후 실제 게임 시작
+  startWithDifficulty(level) {
+    this.setDifficulty(level);
+    this.applyDifficultySettings();
+
+    // 브릭 체력 배수를 브릭필드에 전달
+    this.brickField.setLifeMultiplier(this.brickLifeMultiplier);
+
+    this.startGame();
+  }
+
+  // 🔹 게임 화면으로 넘어가되 플레이는 시작하지 않고 난이도 선택만 보여줄 때
+  showGameForDifficultySelect() {
+    this.state = GAME_STATE.MENU;
+    this.screenManager.showGame();
   }
 
   get currentPlatform() {
@@ -121,6 +182,10 @@ export class Game {
     this.lives = 3;
     this.elapsedTime = 0;
     this.currentPlatformIndex = 0;
+
+    // 🔹 난이도에 맞춰 목숨 / 줄 내려오는 속도 적용
+    this.applyDifficultySettings();
+    this.brickField.setLifeMultiplier(this.brickLifeMultiplier);
 
     this.ui.updateScore(this.score);
     this.ui.updateLives(this.lives);

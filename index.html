@@ -134,6 +134,24 @@
         </div>
       </div>
 
+      <!-- 🔹 난이도 선택 오버레이 -->
+      <div id="difficulty-overlay" class="difficulty-overlay">
+        <h2>난이도 선택</h2>
+        <p class="difficulty-caption">게임을 시작할 난이도를 선택하세요.</p>
+        <div class="menu-buttons">
+          <button class="btn diff-btn" data-diff="easy">Easy</button>
+          <button class="btn diff-btn" data-diff="normal">Normal</button>
+          <button class="btn diff-btn" data-diff="hard">Hard</button>
+          <button class="btn diff-btn" data-diff="extrim">Extrim</button>
+        </div>
+        <p class="difficulty-desc">
+          Easy: 목숨 5, 줄이 천천히 내려옵니다.<br>
+          Normal: 기본 설정입니다.<br>
+          Hard: 목숨이 줄고 줄이 더 자주 내려옵니다.<br>
+          Extrim: 목숨 1개, 줄이 아주 빠르게 내려오는 도전 모드!
+        </p>
+      </div>
+
       <div class="canvas-wrapper">
         <canvas id="gameCanvas" width="800" height="600"></canvas>
       </div>

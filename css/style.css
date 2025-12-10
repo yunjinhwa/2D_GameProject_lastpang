@@ -292,6 +292,7 @@ h2 {
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.25);
   border: 1px solid rgba(148, 163, 184, 0.5);
   width: 100%;
+  position: relative;    /* 🔹 오버레이 위치 기준 */
 }
 
 /* 점수/목숨/조작 안내 */
@@ -563,4 +564,36 @@ h2 {
 
 #gameover-screen h2 {
   color: #dc2626;
+}
+
+/* ============= 난이도 선택 오버레이 ============= */
+.difficulty-overlay {
+  position: absolute;
+  inset: 0;
+  display: none; /* 기본은 숨김, JS에서 .active로 보이게 */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #f9fafb;
+  z-index: 10;
+  text-align: center;
+  padding: 16px;
+}
+
+.difficulty-overlay.active {
+  display: flex;
+}
+
+.difficulty-caption {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.difficulty-desc {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.5;
 }
