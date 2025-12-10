@@ -119,9 +119,12 @@
 
       <div class="info-row">
         <div class="info">
-          <div>점수: <span id="score">0</span></div>
-          <div>남은 목숨: <span id="lives">3</span></div>
-          <div>조작: ← →, Space, ESC(일시정지)</div>
+          <div class="info-stats">
+            <div>점수: <span id="score">0</span></div>
+            <div>남은 목숨: <span id="lives">3</span></div>
+            <div>시간: <span id="timer">0.00</span>초</div>
+          </div>
+          <div class="info-stats-under">조작: ← →, Space, ESC(일시정지)</div>
         </div>
 
         <!-- 현재 속성 표시 -->
@@ -146,7 +149,7 @@
     <p>모든 벽돌을 제거했습니다 🎉</p>
     <p>최종 점수: <span class="final-score"></span></p>
     <!-- 여기 추가 -->
-    <p>클리어 타임: <span id="clearTime">0.00초</span></p>
+    <p>플레이 타임: <span id="gameOverTime">0.00초</span></p>
 
     <div class="menu-buttons">
       <button id="btnRestartClear" class="btn">다시 하기</button>

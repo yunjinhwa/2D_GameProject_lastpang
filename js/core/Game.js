@@ -27,6 +27,9 @@ export class Game {
 
     this.lastTimestamp = 0;
 
+    this.rowFallInterval = 12; // 10초마다 한 줄씩 내려오게 (원하면 5 등으로 변경)
+    this.rowFallTimer = 0;
+
     const startX = canvas.width / 2;
     const startY = canvas.height - 30;
 
@@ -123,7 +126,11 @@ export class Game {
     this.ui.updateLives(this.lives);
     this.ui.updateElement(this.currentPlatform.type);
 
+    this.ui.updateTimer(0);
+
     this.paddle.reset();
+
+    this.rowFallTimer = 0;
 
     const startX = this.canvas.width / 2;
     const startY = this.canvas.height - 30;
@@ -158,6 +165,7 @@ export class Game {
   handleGameOver() {
     this.state = GAME_STATE.OVER;
     this.ui.updateScore(this.score);
+    this.ui.updateGameOverTime(this.elapsedTime);
     this.screenManager.showGameOver();
   }
 
@@ -206,6 +214,7 @@ export class Game {
 
       if (this.state === GAME_STATE.PLAYING) {
         this.elapsedTime += delta;
+        this.ui.updateTimer(this.elapsedTime);
         this.update(frameScale);
       }
 
@@ -219,6 +228,27 @@ export class Game {
 
   update(frameScale) {
     const balls = this.ballSystem.balls;
+
+    // 🔹 frameScale → deltaSeconds 환산 (startLoop에서 60 * delta로 계산했으므로 역변환)
+    const deltaSeconds = frameScale / 60;
+
+    // 🔹 1) 벽돌 줄 이동 타이머 갱신
+    this.rowFallTimer += deltaSeconds;
+    if (this.rowFallTimer >= this.rowFallInterval) {
+      this.rowFallTimer -= this.rowFallInterval;
+
+      // 1-1) 벽돌 한 줄 아래로 + 위에 새 줄 추가
+      this.brickField.shiftDownAndAddRow();
+
+      // 1-2) 벽돌이 패들 라인까지 내려왔는지 체크해서, 내려왔으면 게임오버 처리
+      const paddleBounds = this.paddle.getBounds(this.canvas.height);
+      const paddleTop = paddleBounds.top; // 패들 윗변 y
+
+      if (this.brickField.hasBrickReachedLine(paddleTop)) {
+        this.handleGameOver();
+        return;
+      }
+    }
 
     // 공이 아예 없으면(예외 방지)
     if (balls.length === 0) {
@@ -286,6 +316,15 @@ export class Game {
           // ✅ 패들에 닿은 “그 공만” 현재 플랫폼 속성으로 변경
           const cur = this.currentPlatform;
           ball.setElement(cur.type, cur.color);
+
+          // 🔥 이 공이 분신들의 리더라면, 분신들의 속성도 같이 맞춰준다
+          if (ball.isCloneLeader) {
+            this.ballSystem.balls.forEach((other) => {
+              if (other.isClone) {
+                other.setElement(cur.type, cur.color);
+              }
+            });
+          }
         }
       }
       

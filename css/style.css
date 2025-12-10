@@ -299,10 +299,42 @@ h2 {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 14px;
-  color: #e5e7eb;
+  flex-direction: column; /* 기본은 세로로 유지 */
+  gap: 8px; /* 간격 증가 */
+  font-size: 15px;
+  color: #f9fafb;
+  text-shadow:
+    0 0 3px rgba(15, 23, 42, 0.9),
+    0 0 6px rgba(15, 23, 42, 0.9);
+}
+
+/* 주요 통계 (점수, 목숨, 시간)를 가로로 배치 */
+.info > div:not(:last-child) {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px; /* 항목 간 간격 */
+  padding-right: 20px;
+  border-right: 1px solid rgba(249, 250, 251, 0.2); /* 구분선 추가 */
+}
+
+/* 조작 설명은 별도의 줄로 분리하고 작게 */
+.info > div:last-child {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 4px; /* 위쪽 항목과 약간의 간격 */
+}
+
+/* 점수, 목숨, 시간 항목을 감싸는 컨테이너 */
+.info-stats {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px; /* 항목 내부 간격 */
+  padding-left: 230px;
+}
+
+.info-stats-under {
+  padding-left: 190px;
 }
 
 /* 점수/목숨 + 현재 속성 한 줄 */
@@ -310,21 +342,26 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
+  gap: 24px;
+
+  /* 🔹 캔버스(800px) 폭에 맞추고 중앙 정렬 */
+  max-width: 800px;         /* 캔버스와 같은 폭 */
   width: 100%;
+  margin: 16px auto 12px auto;  /* 좌우 auto → 중앙으로 */
 
   /* 상단 바 전체 디자인 */
-  margin: 14px 22px 10px 1px;
-  padding: 6px 32px;
+  padding: 10px 32px;
   border-radius: 999px;
-  background: radial-gradient(circle at top left,
+  background: radial-gradient(
+    circle at top left,
     #020617 0,
-    #020617 35%,
-    #020617 60%,
-    #0b1220 100%);
+    #020617 40%,
+    #0b1120 80%,
+    #020617 100%
+  );
   box-shadow:
-    0 10px 24px rgba(15, 23, 42, 0.7),
-    0 0 0 1px rgba(148, 163, 184, 0.6);
+    0 12px 28px rgba(15, 23, 42, 0.85),
+    0 0 0 2px rgba(148, 163, 184, 0.9);
   position: relative;
   overflow: hidden;
 }
@@ -333,18 +370,16 @@ h2 {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left,
-    rgba(148, 163, 184, 0.35),
-    transparent 55%);
-  opacity: 0.7;
+  background: radial-gradient(
+    circle at top left,
+    rgba(148, 163, 184, 0.45),
+    transparent 60%
+  );
+  opacity: 0.8;
   pointer-events: none;
 }
 
-.info div {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+/* .info div는 이제 .info-stats 내부에서 사용됨 */
 
 #score,
 #lives {
@@ -356,36 +391,21 @@ h2 {
     0 0 10px rgba(15, 23, 42, 1);
 }
 
-/* 점수 / 목숨 라벨 살짝 연하게 */
-.info div:first-child,
-.info div:nth-child(2) {
-  font-weight: 500;
-}
-
-/* 조작 설명은 조금 더 흐리게 */
-.info div:nth-child(3) {
-  font-size: 13px;
-  opacity: 0.9;
-}
+/* 기존 스타일은 새로운 구조에 맞게 제거 또는 수정됨 */
 
 /* 현재 속성 뱃지 (우측 칩) */
 .element-indicator {
-  position: relative;
-  z-index: 1;
-
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
+  gap: 8px;
+  padding: 8px 20px;
+  min-width: 180px;
 
-  min-width: 170px;
-  padding: 6px 18px;
   border-radius: 999px;
-
-  border: 1px solid rgba(248, 250, 252, 0.22);
-  background: linear-gradient(110deg, #111827, #020617);
+  border: 1px solid rgba(248, 250, 252, 0.45);
+  background: linear-gradient(110deg, #020617, #111827); /* ★ 어두운 배경 */
   box-shadow:
-    0 8px 18px rgba(15, 23, 42, 0.7),
+    0 10px 22px rgba(15, 23, 42, 0.85),
     0 0 0 1px rgba(15, 23, 42, 0.9);
 
   font-size: 13px;
@@ -393,20 +413,22 @@ h2 {
 
 /* "현재 속성" 글자 */
 .element-indicator .label {
-  color: #e5e7eb;
-  opacity: 0.9;
+  color: #e5e7eb;  /* ★ 연한 회색 */
   font-weight: 600;
+  letter-spacing: 0.03em;
+  text-shadow:
+    0 0 3px rgba(15, 23, 42, 0.9);
 }
 
 /* 화(火) 이런 값 부분 */
 .element-indicator .value {
   font-weight: 800;
-  font-size: 18px;
-  letter-spacing: 0.04em;
-  color: #f9fafb;
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  color: #f9fafb;  /* ★ 거의 흰색 */
   text-shadow:
-    0 0 3px rgba(15, 23, 42, 0.9),
-    0 0 6px rgba(15, 23, 42, 0.9);
+    0 0 4px rgba(15, 23, 42, 1),
+    0 0 8px rgba(15, 23, 42, 0.9);
 }
 
 /* 현재 속성 뱃지 */

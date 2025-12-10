@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentElementLabel = document.getElementById("currentElementKorean");
   const clearTimeEl = document.getElementById("clearTime");
   const finalScoreEls = document.querySelectorAll(".final-score");
+  const timerEl = document.getElementById("timer");
+  const gameOverTimeEl = document.getElementById("gameOverTime");
 
   const mainMenu = document.getElementById("main-menu");
   const howtoScreen = document.getElementById("howto-screen");
@@ -53,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
     elementNames: ELEMENT_NAMES_KO,
     finalScoreEls,
     clearTimeEl,
+    timerEl,
+    gameOverTimeEl,
   });
 
   const game = new Game({

@@ -47,6 +47,56 @@ export class BrickField {
     return this.aliveCount <= 0;
   }
 
+  shiftDownAndAddRow() {
+    const { width, height, padding, offsetLeft, offsetTop, cols } = this.layout;
+    const dy = height + padding;
+
+    // 1) 살아있는 벽돌들을 한 칸 아래로 이동
+    for (let c = 0; c < this.bricks.length; c++) {
+      for (let r = 0; r < this.bricks[c].length; r++) {
+        const b = this.bricks[c][r];
+        if (b.status === 1) {
+          b.y += dy;
+        }
+      }
+    }
+
+    // 2) 각 열마다 맨 위에 새 벽돌 하나씩 추가
+    for (let c = 0; c < cols; c++) {
+      const conf =
+        this.brickTypes[randomInt(0, this.brickTypes.length - 1)];
+
+      const x = c * (width + padding) + offsetLeft;
+      const y = offsetTop;
+
+      const newBrick = new Brick(conf, x, y);
+      // 맨 위에 추가 (행 0번)
+      this.bricks[c].unshift(newBrick);
+      this.aliveCount++;
+    }
+  }
+
+  /**
+   * 살아있는 벽돌 중, 주어진 y 라인까지 내려온 것이 있는지 검사
+   * (예: 패들 위쪽 라인까지 내려왔는지 확인용)
+   */
+  hasBrickReachedLine(lineY) {
+    const { height } = this.layout;
+
+    for (let c = 0; c < this.bricks.length; c++) {
+      for (let r = 0; r < this.bricks[c].length; r++) {
+        const b = this.bricks[c][r];
+        if (b.status !== 1) continue;
+
+        const bottom = b.y + height;
+        if (bottom >= lineY) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   draw(ctx, balls) {
     const { width, height } = this.layout;
 

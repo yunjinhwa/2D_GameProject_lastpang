@@ -13,7 +13,13 @@ export class CloneBallEffect extends BaseEffect {
     const ballSystem = game.ballSystem;
     if (ballSystem.balls.length === 0) return;
 
-    const leader = ballSystem.balls[0];
+    let leader = ballSystem.balls.find((b) => b.isCloneLeader);
+    if (!leader) {
+      leader = ballSystem.balls[0];
+    }
+
+    leader.isCloneLeader = true;
+    leader.isClone = false; // 리더는 분신이 아님
 
     for (let i = 0; i < this.cloneCount; i++) {
       const clone = new Ball(
@@ -25,6 +31,9 @@ export class CloneBallEffect extends BaseEffect {
         leader.type,
         leader.color
       );
+      clone.isClone = true;        // 이 공은 분신
+      clone.isCloneLeader = false; // 리더는 아님
+      
       ballSystem.addBall(clone);
     }
 

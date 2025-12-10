@@ -14,6 +14,9 @@ export class Ball {
 
     this.type = type;
     this.color = color;
+
+    this.isClone = false;        // true면 분신
+    this.isCloneLeader = false;  // true면 분신들의 리더
   }
 
   reset(x, y, speedX, speedY) {

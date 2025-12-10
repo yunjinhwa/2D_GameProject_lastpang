@@ -1,12 +1,23 @@
 // js/ui/GameUI.js
 export class GameUI {
-  constructor({ scoreEl, livesEl, elementLabelEl, elementNames, finalScoreEls, clearTimeEl }) {
+  constructor({
+    scoreEl,
+    livesEl,
+    elementLabelEl,
+    elementNames,
+    finalScoreEls,
+    clearTimeEl,
+    timerEl,
+    gameOverTimeEl,
+  }) {
     this.scoreEl = scoreEl;
     this.livesEl = livesEl;
     this.elementLabelEl = elementLabelEl;
     this.elementNames = elementNames;
     this.finalScoreEls = finalScoreEls;
     this.clearTimeEl = clearTimeEl;
+    this.timerEl = timerEl;
+    this.gameOverTimeEl = gameOverTimeEl;
   }
 
   updateScore(score) {
@@ -47,5 +58,17 @@ export class GameUI {
   updateClearTime(seconds) {
     if (!this.clearTimeEl) return;
     this.clearTimeEl.textContent = seconds.toFixed(2) + "초";
+  }
+
+  // 상단 실시간 타이머
+  updateTimer(seconds) {
+    if (!this.timerEl) return;
+    this.timerEl.textContent = seconds.toFixed(2);
+  }
+
+  // 게임 오버 화면 타임
+  updateGameOverTime(seconds) {
+    if (!this.gameOverTimeEl) return;
+    this.gameOverTimeEl.textContent = seconds.toFixed(2) + "초";
   }
 }

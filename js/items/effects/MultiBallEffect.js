@@ -10,9 +10,14 @@ export class MultiBallEffect extends BaseEffect {
 
   apply(game) {
     const ballSystem = game.ballSystem;
-    const currentBalls = [...ballSystem.balls];
+    if (!ballSystem || !ballSystem.balls.length) return;
 
-    currentBalls.forEach((baseBall) => {
+    // 🔥 분신이 아닌 공들만 복제 대상 (리더 + 독립 공)
+    const sourceBalls = ballSystem.balls.filter((b) => !b.isClone);
+
+    if (sourceBalls.length === 0) return;
+
+    sourceBalls.forEach((baseBall) => {
       for (let i = 0; i < this.extraCount; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.hypot(baseBall.dx, baseBall.dy) || 6;
@@ -27,11 +32,15 @@ export class MultiBallEffect extends BaseEffect {
           baseBall.color
         );
 
+        // 🔥 새 공은 “분신이 아닌 독립 공”
+        newBall.isClone = false;
+        newBall.isCloneLeader = false;
+
         ballSystem.addBall(newBall);
       }
     });
 
-    // 멀티볼은 기본 동작이면 충분하니까 behavior는 건들지 않음
-    ballSystem.setBehavior(null);
+    // 🔥 중요: 분신 모드(behavior)는 건드리지 않는다
+    // 이전에 있던 `ballSystem.setBehavior(null);` 같은 라인은 삭제해야 함
   }
 }
