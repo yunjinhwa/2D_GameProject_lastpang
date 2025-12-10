@@ -59,15 +59,7 @@ export class Game {
     const startX = canvas.width / 2;
     const startY = canvas.height - 30;
 
-    const initialBall = new Ball(
-      BALL_CONFIG.radius,
-      startX,
-      startY,
-      BALL_CONFIG.startSpeedX,
-      BALL_CONFIG.startSpeedY,
-      this.currentPlatform.type,
-      this.currentPlatform.color
-    );
+    const initialBall = this.createRandomBall(startX, startY);
 
     this.ballSystem = new BallSystem(initialBall);
     this.items = [];
@@ -84,6 +76,34 @@ export class Game {
     this.CollisionSystem = new CollisionSystem(elementRules);
     // 🔹 생성 직후 현재 난이도의 체력 배수 적용
     this.brickField.setLifeMultiplier(this.brickLifeMultiplier);
+  }
+
+  createRandomBall(startX, startY) {
+    // 기존 설정으로부터 "속도 크기"만 유지
+    const baseVx = BALL_CONFIG.startSpeedX;
+    const baseVy = BALL_CONFIG.startSpeedY;
+    const speed = Math.sqrt(baseVx * baseVx + baseVy * baseVy);
+
+    // 각도 범위: 30도 ~ 150도 (너무 옆으로 가는 것 방지)
+    const minDeg = 30;
+    const maxDeg = 150;
+    const angleDeg = minDeg + Math.random() * (maxDeg - minDeg);
+    const angleRad = (angleDeg * Math.PI) / 180;
+
+    // cos: 좌우, sin: 위쪽, y는 위가 - 이므로 부호 주의
+    const dx = speed * Math.cos(angleRad);
+    const dy = -speed * Math.sin(angleRad);
+
+    const cur = this.currentPlatform;
+    return new Ball(
+      BALL_CONFIG.radius,
+      startX,
+      startY,
+      dx,
+      dy,
+      cur.type,
+      cur.color
+    );
   }
 
   notifyGameEnd(resultType) {
@@ -216,15 +236,7 @@ export class Game {
     const startX = this.canvas.width / 2;
     const startY = this.canvas.height - 30;
 
-    const initialBall = new Ball(
-      BALL_CONFIG.radius,
-      startX,
-      startY,
-      BALL_CONFIG.startSpeedX,
-      BALL_CONFIG.startSpeedY,
-      this.currentPlatform.type,
-      this.currentPlatform.color
-    );
+    const initialBall = this.createRandomBall(startX, startY);
 
     // ✅ 공 시스템 / 아이템 초기화
     this.ballSystem = new BallSystem(initialBall);
@@ -279,153 +291,137 @@ export class Game {
   }
 
   update(frameScale) {
-  const balls = this.ballSystem.balls;
+    const balls = this.ballSystem.balls;
 
-  const deltaSeconds = frameScale / 60;
+    const deltaSeconds = frameScale / 60;
 
-  // 1) 벽돌 줄 이동 타이머 (그대로 유지)
-  this.rowFallTimer += deltaSeconds;
-  if (this.rowFallTimer >= this.rowFallInterval) {
-    this.rowFallTimer -= this.rowFallInterval;
+    // 1) 벽돌 줄 이동 타이머 (그대로 유지)
+    this.rowFallTimer += deltaSeconds;
+    if (this.rowFallTimer >= this.rowFallInterval) {
+      this.rowFallTimer -= this.rowFallInterval;
 
-    this.brickField.shiftDownAndAddRow();
+      this.brickField.shiftDownAndAddRow();
 
-    const paddleBoundsForLine = this.paddle.getBounds(this.canvas.height);
-    const paddleTop = paddleBoundsForLine.top;
+      const paddleBoundsForLine = this.paddle.getBounds(this.canvas.height);
+      const paddleTop = paddleBoundsForLine.top;
 
-    if (this.brickField.hasBrickReachedLine(paddleTop)) {
-      this.handleGameOver();
-      return;
+      if (this.brickField.hasBrickReachedLine(paddleTop)) {
+        this.handleGameOver();
+        return;
+      }
     }
-  }
 
-  if (balls.length === 0) {
-    const startX = this.canvas.width / 2;
-    const startY = this.canvas.height - 30;
-    const initialBall = new Ball(
-      BALL_CONFIG.radius,
-      startX,
-      startY,
-      BALL_CONFIG.startSpeedX,
-      BALL_CONFIG.startSpeedY,
-      this.currentPlatform.type,
-      this.currentPlatform.color
-    );
-    this.ballSystem = new BallSystem(initialBall);
-  }
+    if (balls.length === 0) {
+      const startX = this.canvas.width / 2;
+      const startY = this.canvas.height - 30;
+      const initialBall = this.createRandomBall(startX, startY);
+      this.ballSystem = new BallSystem(initialBall);
+    }
 
-  const paddleBounds = this.paddle.getBounds(this.canvas.height);
-  const deadBallIndexes = [];
+    const paddleBounds = this.paddle.getBounds(this.canvas.height);
+    const deadBallIndexes = [];
 
-  this.ballSystem.forEach((ball, index) => {
-    const collisionResult = this.CollisionSystem.handleBallCollision(
-      ball,
-      this.brickField
-    );
+    this.ballSystem.forEach((ball, index) => {
+      const collisionResult = this.CollisionSystem.handleBallCollision(
+        ball,
+        this.brickField
+      );
 
-    if (collisionResult.collided) {
-      const brickLeft   = collisionResult.brickX;
-      const brickRight  = collisionResult.brickX + collisionResult.brickWidth;
-      const brickTop    = collisionResult.brickY;
-      const brickBottom = collisionResult.brickY + collisionResult.brickHeight;
+      if (collisionResult.collided) {
+        const brickLeft   = collisionResult.brickX;
+        const brickRight  = collisionResult.brickX + collisionResult.brickWidth;
+        const brickTop    = collisionResult.brickY;
+        const brickBottom = collisionResult.brickY + collisionResult.brickHeight;
 
-      const distLeft   = Math.abs((ball.x + ball.radius) - brickLeft);
-      const distRight  = Math.abs((ball.x - ball.radius) - brickRight);
-      const distTop    = Math.abs((ball.y + ball.radius) - brickTop);
-      const distBottom = Math.abs((ball.y - ball.radius) - brickBottom);
+        const distLeft   = Math.abs((ball.x + ball.radius) - brickLeft);
+        const distRight  = Math.abs((ball.x - ball.radius) - brickRight);
+        const distTop    = Math.abs((ball.y + ball.radius) - brickTop);
+        const distBottom = Math.abs((ball.y - ball.radius) - brickBottom);
 
-      const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+        const minDist = Math.min(distLeft, distRight, distTop, distBottom);
 
-      if (minDist === distLeft || minDist === distRight) {
+        if (minDist === distLeft || minDist === distRight) {
+          ball.dx = -ball.dx;
+        } else {
+          ball.dy = -ball.dy;
+        }
+
+        if (collisionResult.destroyed) {
+          this.onBrickDestroyed(collisionResult);
+        }
+        // ✅ 더 이상 allCleared 체크 안함
+      }
+
+      const nextX = ball.x + ball.dx * frameScale;
+      const nextY = ball.y + ball.dy * frameScale;
+
+      // 좌우 벽
+      if (nextX > this.canvas.width - ball.radius || nextX < ball.radius) {
         ball.dx = -ball.dx;
-      } else {
+      }
+
+      // 천장 / 패들
+      if (nextY < ball.radius) {
         ball.dy = -ball.dy;
+      } else {
+        if (
+          nextX > paddleBounds.left &&
+          nextX < paddleBounds.right &&
+          nextY > paddleBounds.top &&
+          nextY < paddleBounds.bottom
+        ) {
+          const center = paddleBounds.left + PADDLE_CONFIG.width / 2;
+          const hitPos = (ball.x - center) / (PADDLE_CONFIG.width / 2);
+          ball.dx = hitPos * 5;
+          ball.dy = -Math.abs(ball.dy);
+
+          const cur = this.currentPlatform;
+          ball.setElement(cur.type, cur.color);
+
+          if (ball.isCloneLeader) {
+            this.ballSystem.balls.forEach((other) => {
+              if (other.isClone) {
+                other.setElement(cur.type, cur.color);
+              }
+            });
+          }
+        }
       }
 
-      if (collisionResult.destroyed) {
-        this.onBrickDestroyed(collisionResult);
+      // 바닥으로 떨어진 공
+      if (nextY - ball.radius > this.canvas.height) {
+        deadBallIndexes.push(index);
       }
-      // ✅ 더 이상 allCleared 체크 안함
-    }
+    });
 
-    const nextX = ball.x + ball.dx * frameScale;
-    const nextY = ball.y + ball.dy * frameScale;
+    // 떨어진 공 정리 + 라이프 처리 (기존 그대로)
+    if (deadBallIndexes.length > 0) {
+      deadBallIndexes
+        .sort((a, b) => b - a)
+        .forEach((i) => {
+          this.ballSystem.balls.splice(i, 1);
+        });
 
-    // 좌우 벽
-    if (nextX > this.canvas.width - ball.radius || nextX < ball.radius) {
-      ball.dx = -ball.dx;
-    }
+      if (this.ballSystem.balls.length === 0) {
+        this.lives--;
+        this.ui.updateLives(this.lives);
 
-    // 천장 / 패들
-    if (nextY < ball.radius) {
-      ball.dy = -ball.dy;
-    } else {
-      if (
-        nextX > paddleBounds.left &&
-        nextX < paddleBounds.right &&
-        nextY > paddleBounds.top &&
-        nextY < paddleBounds.bottom
-      ) {
-        const center = paddleBounds.left + PADDLE_CONFIG.width / 2;
-        const hitPos = (ball.x - center) / (PADDLE_CONFIG.width / 2);
-        ball.dx = hitPos * 5;
-        ball.dy = -Math.abs(ball.dy);
-
-        const cur = this.currentPlatform;
-        ball.setElement(cur.type, cur.color);
-
-        if (ball.isCloneLeader) {
-          this.ballSystem.balls.forEach((other) => {
-            if (other.isClone) {
-              other.setElement(cur.type, cur.color);
-            }
-          });
+        if (this.lives <= 0) {
+          this.handleGameOver();
+          return;
+        } else {
+          const startX = this.paddle.x + PADDLE_CONFIG.width / 2;
+          const startY = this.canvas.height - 30;
+          const newBall = this.createRandomBall(startX, startY);
+          this.ballSystem = new BallSystem(newBall);
         }
       }
     }
 
-    // 바닥으로 떨어진 공
-    if (nextY - ball.radius > this.canvas.height) {
-      deadBallIndexes.push(index);
-    }
-  });
-
-  // 떨어진 공 정리 + 라이프 처리 (기존 그대로)
-  if (deadBallIndexes.length > 0) {
-    deadBallIndexes
-      .sort((a, b) => b - a)
-      .forEach((i) => {
-        this.ballSystem.balls.splice(i, 1);
-      });
-
-    if (this.ballSystem.balls.length === 0) {
-      this.lives--;
-      this.ui.updateLives(this.lives);
-
-      if (this.lives <= 0) {
-        this.handleGameOver();
-        return;
-      } else {
-        const startX = this.paddle.x + PADDLE_CONFIG.width / 2;
-        const startY = this.canvas.height - 30;
-        const newBall = new Ball(
-          BALL_CONFIG.radius,
-          startX,
-          startY,
-          BALL_CONFIG.startSpeedX,
-          BALL_CONFIG.startSpeedY,
-          this.currentPlatform.type,
-          this.currentPlatform.color
-        );
-        this.ballSystem = new BallSystem(newBall);
-      }
-    }
+    this.paddle.update(frameScale);
+    this.ballSystem.update(frameScale, { game: this });
+    this.updateItems(frameScale);
   }
-
-  this.paddle.update(frameScale);
-  this.ballSystem.update(frameScale, { game: this });
-  this.updateItems(frameScale);
-}
 
 
   updateItems(frameScale) {
