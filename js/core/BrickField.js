@@ -58,6 +58,26 @@ export class BrickField {
     this.totalCount = this.aliveCount;
   }
 
+  applyHit(row, col, ballElementType, elementRules) {
+  const brick = this.bricks[col][row];
+  if (!brick || brick.life <= 0) {
+    return { destroyed: false, scoreDelta: 0 };
+  }
+
+  const damage = elementRules.getDamage(ballElementType, brick.type);
+
+  // Brick 클래스의 hit()를 사용해서 life / status 둘 다 갱신
+  const destroyed = brick.hit(damage);
+
+  let scoreDelta = 0;
+  if (destroyed) {
+    this.aliveCount--;
+    scoreDelta = 1;      // 점수 정책은 그대로
+  }
+
+  return { destroyed, scoreDelta };
+}
+
   resetRandom() {
     this.init();
   }
@@ -180,69 +200,5 @@ export class BrickField {
         b.draw(ctx, width, height, glowFactor);
       }
     }
-  }
-
-  /**
-   * 공과 벽돌의 충돌을 처리하고, 결과만 반환한다.
-   * 상위 정책(점수, 클리어 처리)은 Game 쪽에서 결정.
-   */
-  handleCollisionWithBall(ball) {
-    const { width, height } = this.layout;
-
-    for (let c = 0; c < this.bricks.length; c++) {
-      for (let r = 0; r < this.bricks[c].length; r++) {
-        const b = this.bricks[c][r];
-        if (b.status !== 1) continue;
-
-        const inX =
-          ball.x + ball.radius > b.x &&
-          ball.x - ball.radius < b.x + width;
-        const inY =
-          ball.y + ball.radius > b.y &&
-          ball.y - ball.radius < b.y + height;
-
-        if (inX && inY) {
-          const wasMovingDown = ball.dy > 0;
-          const wasMovingUp = ball.dy < 0;
-
-          if (wasMovingDown) {
-            ball.y = b.y - ball.radius - 0.1;
-          } else if (wasMovingUp) {
-            ball.y = b.y + height + ball.radius + 0.1;
-          }
-
-          ball.dy = -ball.dy;
-
-          let destroyed = false;
-
-          const damage = this.elementRules.getDamage(ball.type, b.type);
-
-          if (damage > 0) {
-            destroyed = b.hit(damage);
-            if (destroyed) {
-              this.aliveCount--;
-            }
-          }
-
-          // 🔥 여기서 벽돌 위치/크기까지 같이 넘겨준다
-          return {
-            collided: true,
-            destroyed,
-            allCleared: this.isCleared(),
-            brickX: b.x,
-            brickY: b.y,
-            brickWidth: width,
-            brickHeight: height,
-          };
-        }
-      }
-    }
-
-    // 충돌 없음
-    return {
-      collided: false,
-      destroyed: false,
-      allCleared: this.isCleared(),
-    };
   }
 }

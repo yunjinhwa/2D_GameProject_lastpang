@@ -38,11 +38,11 @@ export class Item {
     );
   }
 
-  onPickup(game) {
+  onPickup(context) {
     if (!this.isActive) return;
     this.isActive = false;
     if (this.effect && typeof this.effect.apply === "function") {
-      this.effect.apply(game); // 여기서 공 관련 패턴 변경 / 공 추가 등 실행
+      this.effect.apply(context);
     }
   }
 }

@@ -1,6 +1,10 @@
 // js/items/effects/BaseEffect.js
 export class BaseEffect {
-  apply(game) {
-    throw new Error("apply(game) must be implemented");
+  /**
+   * @param {Object} context
+   * @param {BallSystem} context.ballSystem
+   */
+  apply(context) {
+    throw new Error("apply(context) must be implemented");
   }
 }

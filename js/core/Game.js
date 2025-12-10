@@ -7,6 +7,8 @@ import { BallSystem } from "./BallSystem.js";
 import { Item } from "../items/Item.js";
 import { MultiBallEffect } from "../items/effects/MultiBallEffect.js";
 import { CloneBallEffect } from "../items/effects/CloneBallEffect.js";
+import { CollisionSystem } from "./CollisionSystem.js";
+import { ItemFactory } from "../items/ItemFactory.js";
 
 // 🔹 난이도 프리셋 (블럭 하강 속도 + 블럭 체력 배수)
 const DIFFICULTY_PRESETS = {
@@ -39,12 +41,12 @@ export class Game {
     this.platformTypes = platformTypes;
     this.brickTypes = brickTypes;
     this.currentPlatformIndex = 0;
+    this.itemFactory = new ItemFactory({ dropRate: 0.3 });
 
     this.state = GAME_STATE.MENU;
     this.score = 0;
     this.lives = 3;        // 난이도와 무관, 그대로 3
     this.elapsedTime = 0;
-
     this.lastTimestamp = 0;
 
     // 🔹 난이도 기본값
@@ -80,6 +82,7 @@ export class Game {
     );
 
     this.brickField = new BrickField(BRICK_LAYOUT, this.brickTypes, elementRules);
+    this.CollisionSystem = new CollisionSystem(elementRules);
     // 🔹 생성 직후 현재 난이도의 체력 배수 적용
     this.brickField.setLifeMultiplier(this.brickLifeMultiplier);
   }
@@ -235,37 +238,15 @@ export class Game {
   }
 
   onBrickDestroyed(collisionResult) {
-    // 1) 점수 갱신 (기존 기능 유지)
+    // 1) 점수 갱신
     this.score += 1;
     this.ui.updateScore(this.score);
 
-    // 2) 충돌 정보가 없거나, 위치 정보가 없으면 아이템 드랍 스킵
-    if (!collisionResult || !collisionResult.brickX) return;
-
-    // 3) 아이템 드랍 확률
-    const dropRate = 0.3; // 30% 정도. 마음대로 조절 가능
-    if (Math.random() > dropRate) return;
-
-    const { brickX, brickY, brickWidth, brickHeight } = collisionResult;
-
-    // 4) 어떤 효과를 줄지 랜덤 선택 (멀티볼 or 분신볼)
-    const effect =
-      Math.random() < 0.5
-        ? new MultiBallEffect(1)   // 공 1개씩 추가
-        : new CloneBallEffect(2);  // 분신 2개
-
-    // 5) 벽돌 중앙에서 떨어지는 아이템 생성
-    const item = new Item({
-      x: brickX + brickWidth / 2 - 10,
-      y: brickY + brickHeight / 2 - 10,
-      width: 20,
-      height: 20,
-      fallSpeed: 3,
-      effect,
-    });
-
-    // 6) 게임의 아이템 리스트에 추가
-    this.items.push(item);
+    // 2) 아이템 생성은 Factory에 위임
+    const item = this.itemFactory.createRandomItem(collisionResult);
+    if (item) {
+      this.items.push(item);
+    }
   }
 
   // 메인 루프 시작
@@ -339,9 +320,33 @@ export class Game {
     // 🔹 1) 공 여러 개에 대해 충돌 / 벽 / 패들 / 바닥 처리
     this.ballSystem.forEach((ball, index) => {
       // (1) 벽돌 충돌
-      const collisionResult = this.brickField.handleCollisionWithBall(ball);
+      const collisionResult = this.CollisionSystem.handleBallCollision(
+        ball,
+        this.brickField
+      );
 
       if (collisionResult.collided) {
+        // 1) 튕김 처리 (간단하게 위/아래 반사)
+        const brickLeft   = collisionResult.brickX;
+        const brickRight  = collisionResult.brickX + collisionResult.brickWidth;
+        const brickTop    = collisionResult.brickY;
+        const brickBottom = collisionResult.brickY + collisionResult.brickHeight;
+
+        // 공과 벽돌 경계 간 거리 비교로 어느 면에서 들어왔는지 대략 추정
+        const distLeft   = Math.abs((ball.x + ball.radius) - brickLeft);
+        const distRight  = Math.abs((ball.x - ball.radius) - brickRight);
+        const distTop    = Math.abs((ball.y + ball.radius) - brickTop);
+        const distBottom = Math.abs((ball.y - ball.radius) - brickBottom);
+
+        const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+
+        if (minDist === distLeft || minDist === distRight) {
+          ball.dx = -ball.dx;      // 좌우 면에 맞음 → x 반전
+        } else {
+          ball.dy = -ball.dy;      // 위/아래 면에 맞음 → y 반전
+        }
+
+        // 2) 점수 / 아이템 / 클리어는 기존 로직 유지
         if (collisionResult.destroyed) {
           this.onBrickDestroyed(collisionResult);
         }
@@ -453,7 +458,8 @@ export class Game {
       item.update(frameScale);
 
       if (item.collidesWithRect(paddleBounds)) {
-        item.onPickup(this); // 여기서 effect.apply(game) 호출
+        const effectContext = { ballSystem: this.ballSystem };
+        item.onPickup(effectContext);
       }
     });
 

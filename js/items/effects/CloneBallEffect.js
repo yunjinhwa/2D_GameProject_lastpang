@@ -9,31 +9,28 @@ export class CloneBallEffect extends BaseEffect {
     this.cloneCount = cloneCount;
   }
 
-  apply(game) {
-    const ballSystem = game.ballSystem;
-    if (ballSystem.balls.length === 0) return;
+  apply(context) {
+    const ballSystem = context.ballSystem;
+    if (!ballSystem || ballSystem.balls.length === 0) return;
 
     let leader = ballSystem.balls.find((b) => b.isCloneLeader);
     if (!leader) {
-      leader = ballSystem.balls[0];
+      leader = ballSystem.balls.find((b) => !b.isClone) || ballSystem.balls[0];
+      leader.isCloneLeader = true;
     }
-
-    leader.isCloneLeader = true;
-    leader.isClone = false; // 리더는 분신이 아님
 
     for (let i = 0; i < this.cloneCount; i++) {
       const clone = new Ball(
-        leader.radius,
-        leader.x,
-        leader.y,
-        leader.dx,
-        leader.dy,
+        leader.radius,   // radius
+        leader.x,        // startX
+        leader.y,        // startY
+        leader.dx,       // speedX
+        leader.dy,       // speedY
         leader.type,
         leader.color
       );
-      clone.isClone = true;        // 이 공은 분신
-      clone.isCloneLeader = false; // 리더는 아님
-      
+      clone.isClone = true;
+      clone.isCloneLeader = false;
       ballSystem.addBall(clone);
     }
 
