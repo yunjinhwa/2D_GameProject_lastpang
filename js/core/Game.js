@@ -406,11 +406,27 @@ export class Game {
 
         const minDist = Math.min(distLeft, distRight, distTop, distBottom);
 
-        if (minDist === distLeft || minDist === distRight) {
-          ball.dx = -ball.dx;
+        const EPS = 0.5; // 벽돌에서 약간 떨어뜨려서 '달라붙는' 현상 방지
+
+        // 어느 면에 부딪혔는지에 따라 속도와 위치를 동시에 보정한다.
+        if (minDist === distLeft) {
+          // 벽돌의 왼쪽 면에 가까움 → 공의 오른쪽이 brickLeft에 닿은 것
+          ball.dx = -Math.abs(ball.dx);                // 왼쪽으로 튕기기
+          ball.x  = brickLeft - ball.radius - EPS;     // 벽돌 밖으로 살짝 이동
+        } else if (minDist === distRight) {
+          // 벽돌의 오른쪽 면에 가까움
+          ball.dx = Math.abs(ball.dx);                 // 오른쪽으로 튕기기
+          ball.x  = brickRight + ball.radius + EPS;
+        } else if (minDist === distTop) {
+          // 벽돌의 윗면에 가까움 → 공의 아래가 brickTop에 닿은 것
+          ball.dy = -Math.abs(ball.dy);                // 위로 튕기기 (y는 위가 -)
+          ball.y  = brickTop - ball.radius - EPS;
         } else {
-          ball.dy = -ball.dy;
+          // 벽돌의 아랫면에 가까움
+          ball.dy = Math.abs(ball.dy);                 // 아래로 튕기기
+          ball.y  = brickBottom + ball.radius + EPS;
         }
+
 
         if (collisionResult.destroyed) {
           this.onBrickDestroyed(collisionResult);
