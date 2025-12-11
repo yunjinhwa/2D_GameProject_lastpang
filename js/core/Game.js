@@ -529,9 +529,9 @@ export class Game {
     }
 
     this.paddle.update(frameScale);
+    this.updateItems(frameScale);
     // Behavior가 있다면 Behavior.update가 호출됨
     this.ballSystem.update(frameScale, { game: this });
-    this.updateItems(frameScale);
   }
 
   /**
