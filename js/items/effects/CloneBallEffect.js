@@ -25,6 +25,8 @@ export class CloneBallEffect extends BaseEffect {
   apply(context) {
     const ballSystem = context.ballSystem;
     if (!ballSystem || ballSystem.balls.length === 0) return;
+    
+    console.log("[Effect]", "balls before:", ballSystem.balls.length);
 
     // 1) 기존 리더가 있으면 그대로 사용
     let leader = ballSystem.balls.find((b) => b.isCloneLeader);
@@ -53,5 +55,6 @@ export class CloneBallEffect extends BaseEffect {
 
     // 4) 분신 이동 Behavior 활성화
     ballSystem.setBehavior(new CloneBehavior());
+    console.log("[Effect]", "balls after :", ballSystem.balls.length);
   }
 }

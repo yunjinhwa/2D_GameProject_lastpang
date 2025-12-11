@@ -73,5 +73,6 @@ export class Item {
     if (this.effect && typeof this.effect.apply === "function") {
       this.effect.apply(context);
     }
+    console.log("[Item] pickup!", this.effect?.constructor?.name);
   }
 }
